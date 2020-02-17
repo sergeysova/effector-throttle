@@ -1,6 +1,6 @@
 {
-  "name": "rollup-starter",
-  "version": "0.0.1",
+  "name": "effector-throttle",
+  "version": "0.0.2",
   "main": "./dist/common.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -8,12 +8,20 @@
   "files": [
     "dist"
   ],
+  "repository": "github:sergeysova/effector-throttle",
+  "scripts": {
+    "build": "rm -rf dist && rollup -c",
+    "lint": "eslint --ext .ts,.tsx src",
+    "commit": "git-cz"
+  },
   "devDependencies": {
     "@babel/core": "^7.8.3",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
     "@babel/preset-env": "^7.8.3",
     "@babel/preset-typescript": "^7.8.3",
+    "@commitlint/cli": "8.2.0",
+    "@commitlint/config-conventional": "8.2.0",
     "@rollup/plugin-alias": "^2.2.0",
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^7.0.0",
@@ -21,9 +29,12 @@
     "@types/react": "^16.9.17",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
+    "commitizen": "4.0.3",
+    "cz-conventional-changelog": "3.0.2",
     "eslint": "^6.6.0",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.17.0",
+    "husky": "3.1.0",
     "prettier": "^1.19.1",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
@@ -35,8 +46,12 @@
     "rollup-plugin-typescript2": "^0.25.3",
     "typescript": "^3.7.4"
   },
-  "scripts": {
-    "build": "rm -rf dist && rollup -c",
-    "lint": "eslint --ext .ts,.tsx src"
+  "peerDependencies": {
+    "effector": "^20.11.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }

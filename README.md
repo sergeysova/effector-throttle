@@ -1,27 +1,46 @@
-# 🐣 Rollup starter with Typescript
+# Effector Throttle
 
-[![Build Status](https://travis-ci.org/toastyboost/rollup-starter.svg?branch=master)](https://travis-ci.org/toastyboost/rollup-starter)
+https://codesandbox.io/s/effector-throttle-debounce-w32tk
 
-Build your module into a clean, typed and cross-platform package.  
-It's just works. Only key featurs.
+## Installation
 
-React version — 🐣[Rollup React starter with Typescript](https://github.com/toastyboost/rollup-react-starter)
+```bash
+npm install --save effector effector-throttle
+
+# or
+
+yarn add effector effector-throttle
+```
 
 ## Usage
 
-`yarn build` builds the application to `dist/`  
-`yarn lint` check for errors `src/**.ts`
+Create event that should be throttled:
 
-## Features
+```ts
+import { createEvent } from 'effector';
 
-- [x] 🧠Bundles CJS/ES module formats
-- [x] 👭Aliases
-- [x] 🤫Sourcemaps
-- [x] 👮‍♀️ESLint plugins (not TSLint, because it's dead)
-- [x] 🍭Prettier
-- [x] 🎱 Auto compiling types
-- [x] 🧹 Post clean
+const someHappened = createEvent<number>();
+```
 
-## TODO
+Create throttled event from it:
 
-- [ ] Add article how to publish NPM package
+```ts
+import { createThrottle } from 'effector-throttle';
+
+const THROTTLE_TIMEOUT_IN_MS = 200;
+
+const throttled = createThrottle(someHappened, THROTTLE_TIMEOUT_IN_MS);
+```
+
+To test that original event is correctly throttled you can add watcher:
+
+```ts
+someHappened.watch((payload) => {
+  console.info('someHappened now', payload);
+});
+
+throttled(1);
+throttled(2);
+throttled(3);
+throttled(4);
+```
