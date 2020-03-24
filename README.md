@@ -44,3 +44,16 @@ throttled(2);
 throttled(3);
 throttled(4);
 ```
+
+Also you can use `Effect` and `Store` as trigger. `createThrottle` always returns `Event`:
+
+```ts
+const event = createEvent<number>();
+const debouncedEvent: Event<number> = createThrottle(event, 100);
+
+const fx = createEffect<number, void>();
+const debouncedEffect: Event<number> = createThrottle(fx, 100);
+
+const $store = createStore<number>(0);
+const debouncedStore: Event<number> = createThrottle($store, 100);
+```
