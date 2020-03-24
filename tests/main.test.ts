@@ -1,0 +1,316 @@
+import 'regenerator-runtime/runtime';
+import { createStore, createEvent, createEffect } from 'effector';
+import { createThrottle } from '../src';
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+describe('event', () => {
+  test('throttle event', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEvent();
+    const throttled = createThrottle(trigger, 40);
+
+    throttled.watch(watcher);
+
+    trigger();
+    trigger();
+    trigger();
+
+    expect(watcher).not.toBeCalled();
+
+    await wait(40);
+
+    expect(watcher).toBeCalledTimes(1);
+  });
+
+  test('throttled event with wait', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEvent();
+    const throttled = createThrottle(trigger, 40);
+
+    throttled.watch(watcher);
+
+    trigger();
+
+    await wait(30);
+    trigger();
+
+    await wait(30);
+    trigger();
+
+    expect(watcher).toBeCalled();
+
+    await wait(40);
+
+    expect(watcher).toBeCalledTimes(2);
+  });
+
+  test('throttled event triggered with first value', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEvent<number>();
+    const throttled = createThrottle(trigger, 40);
+
+    throttled.watch(watcher);
+
+    trigger(0);
+    trigger(1);
+    trigger(2);
+
+    expect(watcher).not.toBeCalled();
+
+    await wait(40);
+
+    expect(watcher.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          0,
+        ],
+      ]
+    `);
+  });
+
+  test('throttled event works after trigger', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEvent<number>();
+    const throttled = createThrottle(trigger, 40);
+
+    throttled.watch(watcher);
+
+    trigger(0);
+    trigger(1);
+    trigger(2);
+
+    expect(watcher).not.toBeCalled();
+
+    await wait(40);
+
+    expect(watcher.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          0,
+        ],
+      ]
+    `);
+
+    trigger(3);
+    await wait(30);
+    trigger(4);
+    await wait(50);
+
+    expect(watcher.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    0,
+  ],
+  Array [
+    3,
+  ],
+]
+`);
+  });
+});
+
+describe('effect', () => {
+  test('throttle effect', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEffect<void, void>().use(() => undefined);
+    const throttle = createThrottle(trigger, 40);
+
+    throttle.watch(watcher);
+
+    trigger();
+    trigger();
+    trigger();
+
+    expect(watcher).not.toBeCalled();
+
+    await wait(40);
+
+    expect(watcher).toBeCalledTimes(1);
+  });
+
+  test('throttle effect with wait', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEffect<void, void>().use(() => undefined);
+    const throttle = createThrottle(trigger, 40);
+
+    throttle.watch(watcher);
+
+    trigger();
+
+    await wait(30);
+    trigger();
+
+    await wait(30);
+    trigger();
+
+    expect(watcher).toBeCalledTimes(1);
+
+    await wait(40);
+
+    expect(watcher).toBeCalledTimes(2);
+  });
+
+  test('throttle effect triggered with last value', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEffect<number, void>().use(() => undefined);
+    const throttled = createThrottle(trigger, 40);
+
+    throttled.watch(watcher);
+
+    trigger(0);
+    trigger(1);
+    trigger(2);
+
+    expect(watcher).not.toBeCalled();
+
+    await wait(40);
+
+    expect(watcher).toBeCalledTimes(1);
+    expect(watcher.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    0,
+  ],
+]
+`);
+  });
+
+  test('throttled effect works after trigger', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEffect<number, void>().use(() => undefined);
+    const throttled = createThrottle(trigger, 40);
+
+    throttled.watch(watcher);
+
+    trigger(0);
+    trigger(1);
+    trigger(2);
+
+    expect(watcher).not.toBeCalled();
+
+    await wait(40);
+
+    expect(watcher).toBeCalledTimes(1);
+    expect(watcher).toBeCalledWith(0);
+
+    trigger(3);
+    await wait(30);
+    trigger(4);
+
+    await wait(50);
+
+    expect(watcher).toBeCalledTimes(2);
+    expect(watcher.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    0,
+  ],
+  Array [
+    3,
+  ],
+]
+`);
+  });
+});
+
+describe('store', () => {
+  test('throttle store and pass values', async () => {
+    const watcher = jest.fn();
+
+    const trigger = createEvent<number>();
+    const $store = createStore(0);
+
+    $store.on(trigger, (_, value) => value);
+
+    const throttled = createThrottle($store, 40);
+
+    throttled.watch(watcher);
+
+    trigger(0);
+    trigger(1);
+    trigger(2);
+
+    expect(watcher).not.toBeCalled();
+
+    await wait(40);
+
+    expect(watcher).toBeCalledTimes(1);
+    expect(watcher.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    1,
+  ],
+]
+`);
+  });
+});
+
+test('debounce do not affect another instance', async () => {
+  const watcherFirst = jest.fn();
+  const triggerFirst = createEvent<number>();
+  const throttledFirst = createThrottle(triggerFirst, 20);
+  throttledFirst.watch(watcherFirst);
+
+  const watcherSecond = jest.fn();
+  const triggerSecond = createEvent<string>();
+  const throttledSecond = createThrottle(triggerSecond, 60);
+  throttledSecond.watch(watcherSecond);
+
+  triggerFirst(0);
+
+  expect(watcherFirst).not.toBeCalled();
+  await wait(20);
+
+  expect(watcherFirst).toBeCalledTimes(1);
+  expect(watcherFirst.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    0,
+  ],
+]
+`);
+
+  expect(watcherSecond).not.toBeCalled();
+
+  triggerSecond('foo');
+  triggerFirst(1);
+  await wait(20);
+  triggerFirst(2);
+  await wait(20);
+
+  expect(watcherFirst).toBeCalledTimes(3);
+  expect(watcherFirst.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    0,
+  ],
+  Array [
+    1,
+  ],
+  Array [
+    2,
+  ],
+]
+`);
+  expect(watcherSecond).not.toBeCalled();
+
+  await wait(20);
+
+  expect(watcherSecond).toBeCalledTimes(1);
+  expect(watcherSecond.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    "foo",
+  ],
+]
+`);
+});
