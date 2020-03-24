@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime';
-import { createStore, createEvent, createEffect } from 'effector';
+import { createStore, createEvent, createEffect, createDomain } from 'effector';
 import { createThrottle } from '../src';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -112,6 +112,15 @@ Array [
 ]
 `);
   });
+
+  test('name correctly assigned from trigger', () => {
+    const demo = createEvent();
+    const throttledDemo = createThrottle(demo, 20);
+
+    expect(throttledDemo.shortName).toMatchInlineSnapshot(
+      `"unknownThrottleTick"`,
+    );
+  });
 });
 
 describe('effect', () => {
@@ -220,6 +229,15 @@ Array [
 ]
 `);
   });
+
+  test('name correctly assigned from trigger', () => {
+    const demoFx = createEffect();
+    const throttledDemo = createThrottle(demoFx, 20);
+
+    expect(throttledDemo.shortName).toMatchInlineSnapshot(
+      `"unknownThrottleTick"`,
+    );
+  });
 });
 
 describe('store', () => {
@@ -251,6 +269,15 @@ Array [
   ],
 ]
 `);
+  });
+
+  test('name correctly assigned from trigger', () => {
+    const $demo = createStore(0);
+    const throttledDemo = createThrottle($demo, 20);
+
+    expect(throttledDemo.shortName).toMatchInlineSnapshot(
+      `"unknownThrottleTick"`,
+    );
   });
 });
 
@@ -313,4 +340,23 @@ Array [
   ],
 ]
 `);
+});
+
+test('name correctly assigned from params', () => {
+  const demo = createEvent();
+  const throttledDemo = createThrottle(demo, 20, { name: 'Example' });
+
+  expect(throttledDemo.shortName).toMatchInlineSnapshot(
+    `"ExampleThrottleTick"`,
+  );
+});
+
+test('name should not be in domain', () => {
+  const domain = createDomain();
+  const event = domain.createEvent();
+  const throttledDemo = createThrottle(event, 20);
+
+  expect(throttledDemo.shortName).toMatchInlineSnapshot(
+    `"unknownThrottleTick"`,
+  );
 });

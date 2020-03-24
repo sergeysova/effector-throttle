@@ -59,3 +59,21 @@ const debouncedEffect: Event<number> = createThrottle(fx, 100);
 const $store = createStore<number>(0);
 const debouncedStore: Event<number> = createThrottle($store, 100);
 ```
+
+### Change name
+
+```ts
+const trigger = createEvent();
+const throttled = createThrottle(trigger, 100);
+
+// Now throttled var has `triggerThrottleTick` name
+```
+
+To change name:
+
+```ts
+const trigger = createEvent();
+const throttled = createThrottle(trigger, 100, { name: 'Hello' });
+
+// Now throttled var has `HelloThrottleTick` name
+```
