@@ -117,9 +117,7 @@ Array [
     const demo = createEvent();
     const throttledDemo = createThrottle(demo, 20);
 
-    expect(throttledDemo.shortName).toMatchInlineSnapshot(
-      `"unknownThrottleTick"`,
-    );
+    expect(throttledDemo.shortName).toMatchInlineSnapshot(`"demoThrottleTick"`);
   });
 });
 
@@ -235,7 +233,7 @@ Array [
     const throttledDemo = createThrottle(demoFx, 20);
 
     expect(throttledDemo.shortName).toMatchInlineSnapshot(
-      `"unknownThrottleTick"`,
+      `"demoFxThrottleTick"`,
     );
   });
 });
@@ -276,7 +274,7 @@ Array [
     const throttledDemo = createThrottle($demo, 20);
 
     expect(throttledDemo.shortName).toMatchInlineSnapshot(
-      `"unknownThrottleTick"`,
+      `"$demoThrottleTick"`,
     );
   });
 });
@@ -356,7 +354,5 @@ test('name should not be in domain', () => {
   const event = domain.createEvent();
   const throttledDemo = createThrottle(event, 20);
 
-  expect(throttledDemo.shortName).toMatchInlineSnapshot(
-    `"unknownThrottleTick"`,
-  );
+  expect(throttledDemo.shortName).toMatchInlineSnapshot(`"eventThrottleTick"`);
 });

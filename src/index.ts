@@ -11,7 +11,7 @@ import {
 export function createThrottle<T>(
   callee: Unit<T>,
   timeout: number,
-  { name = 'unknown' } = {},
+  { name = (callee as any).shortName || 'unknown' } = {},
 ): Event<T> {
   if (!is.unit(callee)) throw new Error('callee must be unit from effector');
   if (typeof timeout !== 'number' || timeout < 0)
